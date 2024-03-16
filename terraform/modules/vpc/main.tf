@@ -7,7 +7,7 @@ module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
   name = "fg-vpc"
-  cidr = "10.10.0.0/16"
+  cidr  = var.vpc_cidr
 
   azs = ["us-east-1"]
 
