@@ -1,23 +1,26 @@
-# resource "aws_vpc" "main" {
-# }
+resource "aws_subnet" "myapp-subnet-1" {
+    vpc_id = var.vpc_id
+    availability_zone = var.avail_zone
+    tags = {
+        Name = "${var.env_prefix}-subnet-1"
+    }
+}
 
+resource "aws_internet_gateway" "myapp-igw" {
+    vpc_id = var.vpc_id
+    tags = {
+        Name = "${var.env_prefix}-igw"
+    }
+}
 
+resource "aws_default_route_table" "main-rtb" {
+    default_route_table_id = var.default_route_table_id
 
-module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
-
-  name = "fg-vpc"
-  cidr  = var.vpc_cidr
-
-  azs = ["us-east-1"]
-
-  private_subnets = ["10.10.2.0/24"]
-  public_subnets  = ["10.10.1.0/24"]
-
-  enable_nat_gateway = true
-
-  tags = {
-    name        = "fg-vpc-dev"
-    Environment = "dev"
-  }
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.myapp-igw.id
+    }
+    tags = {
+        Name = "${var.env_prefix}-main-rtb"
+    }
 }

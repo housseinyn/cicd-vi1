@@ -1,32 +1,27 @@
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  owners = ["099720109477"] # Canonical
+data "aws_ami" "latest-amazon-linux-image" {
+    most_recent = true
+    owners = ["amazon"]
+    filter {
+        name = "name"
+        values = [var.image_name]
+    }
+    filter {
+        name = "virtualization-type"
+        values = ["hvm"]
+    }
 }
 
-resource "aws_instance" "web" {
-  ami           = var.ami
-  instance_type = var.instance_type
-  tags = {
-    Name = "fg-web-dev"
-  }
 
-}
+resource "aws_instance" "web-server" {
+    ami = data.aws_ami.latest-amazon-linux-image.id
+    instance_type = var.instance_type
 
-resource "aws_instance" "db" {
-  ami           = var.ami
-  instance_type = var.instance_type_db
-  tags = {
-    Name = "fg-db-dev"
-  }
-  
+    subnet_id = var.subnet_id
+    availability_zone = var.avail_zone
+
+    associate_public_ip_address = true
+
+    tags = {
+        Name = "${var.env_prefix}-server"
+    }
 }
